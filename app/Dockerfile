@@ -1,24 +1,20 @@
-# Use Node.js LTS version as base image
+# Gunakan Node.js 18 Alpine
 FROM node:18-alpine
 
-# Set working directory
+# Set folder kerja di dalam container
 WORKDIR /app
 
-# Copy package files first for better caching
+# Copy package.json dulu supaya build lebih cepat
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install library (dependencies)
+RUN npm install --production
 
-# Copy application source code
+# Copy semua file dari laptop ke dalam container
 COPY . .
 
-# Expose application port (adjust if your app uses a different port)
+# Beritahu Docker aplikasi jalan di port 3000
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Start the application
-CMD ["node", "app/index.js"]
+# Jalankan aplikasi (Memanggil app.js, bukan app/index.js)
+CMD ["node", "app.js"]

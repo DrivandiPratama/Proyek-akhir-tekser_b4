@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Manajemen Perpustakaan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --background: #ecf0f1;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .main-container { padding: 2rem 0; }
+    .header-section {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .stats-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    .card-custom {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: none;
+    }
+    .card-custom .card-header {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: white;
+      border-radius: 15px 15px 0 0 !important;
+      padding: 1.5rem;
+    }
+    .btn-primary-custom { background: #3498db; color: white; border: none; border-radius: 8px; padding: 10px 20px; }
+    .btn-warning-custom { background: #f39c12; color: white; border: none; border-radius: 5px; padding: 5px 10px; margin-right: 5px; }
+    .btn-danger-custom { background: #e74c3c; color: white; border: none; border-radius: 5px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <div class="container main-container">
+    <div class="header-section">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1><i class="fas fa-book-open"></i> Sistem Manajemen Perpustakaan</h1>
+          <p>Kelola koleksi buku perpustakaan Anda dengan mudah</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addBookModal">
+            <i class="fas fa-plus"></i> Tambah Buku Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="stats-card">
+          <h3><%= books.length %></h3>
+          <p>Total Buku</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stats-card">
+          <h3><%= categories.length %></h3>
+          <p>Kategori</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stats-card">
+          <h3><%= books.reduce((sum, book) => sum + book.stok_buku, 0) %></h3>
+          <p>Total Stok</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-custom">
+      <div class="card-header"><h5>Daftar Buku</h5></div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Judul</th>
+              <th>Penulis</th>
+              <th>Kategori</th>
+              <th class="text-center">Stok</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% books.forEach((book, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><strong><%= book.judul_buku %></strong></td>
+                <td><%= book.penulis %></td>
+                <td><span class="badge bg-info"><%= book.nama_kategori %></span></td>
+                <td class="text-center"><%= book.stok_buku %></td>
+                <td class="text-center">
+                  <button class="btn btn-warning-custom btn-sm" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editBookModal"
+                    data-id="<%= book.id_buku %>"
+                    data-judul="<%= book.judul_buku %>"
+                    data-penulis="<%= book.penulis %>"
+                    data-stok="<%= book.stok_buku %>"
+                    data-kategori="<%= book.id_kategori %>">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  <a href="/delete/<%= book.id_buku %>" class="btn btn-danger-custom btn-sm" onclick="return confirm('Hapus buku ini?')">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="addBookModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5>Tambah Buku</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="/add" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Judul Buku</label>
+              <input type="text" class="form-control" name="judul_buku" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Penulis</label>
+              <input type="text" class="form-control" name="penulis" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Stok</label>
+              <input type="number" class="form-control" name="stok_buku" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" name="id_kategori" required>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id_kategori %>"><%= cat.nama_kategori %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editBookModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5>Edit Buku</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="editForm" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Judul Buku</label>
+              <input type="text" class="form-control" name="judul_buku" id="edit-judul" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Penulis</label>
+              <input type="text" class="form-control" name="penulis" id="edit-penulis" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Stok</label>
+              <input type="number" class="form-control" name="stok_buku" id="edit-stok" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" name="id_kategori" id="edit-kategori" required>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id_kategori %>"><%= cat.nama_kategori %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success text-white">Update Data</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Script untuk mengisi data ke Modal Edit secara dinamis
+    const editModal = document.getElementById('editBookModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+      // Tombol yang diklik
+      const button = event.relatedTarget;
+      
+      // Ambil data dari atribut data-bs-*
+      const id = button.getAttribute('data-id');
+      const judul = button.getAttribute('data-judul');
+      const penulis = button.getAttribute('data-penulis');
+      const stok = button.getAttribute('data-stok');
+      const kategori = button.getAttribute('data-kategori');
+
+      // Update action form agar mengarah ke ID yang benar
+      const form = editModal.querySelector('#editForm');
+      form.action = '/update/' + id;
+
+      // Isi nilai input modal
+      editModal.querySelector('#edit-judul').value = judul;
+      editModal.querySelector('#edit-penulis').value = penulis;
+      editModal.querySelector('#edit-stok').value = stok;
+      editModal.querySelector('#edit-kategori').value = kategori;
+    });
+  </script>
+</body>
+</html>

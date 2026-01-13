@@ -4,14 +4,16 @@ const path = require('path');
 const routes = require('./routes/index');
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'view'));
+app.set('views', path.join(__dirname, 'view')); 
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use('/', routes);
 
 const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });

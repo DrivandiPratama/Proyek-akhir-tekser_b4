@@ -1,10 +1,7 @@
-version: '3.8'
-
 services:
-  # Application Service
   app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     container_name: tekser_app
     ports:
@@ -15,31 +12,25 @@ services:
       - DB_PORT=3306
       - DB_USER=root
       - DB_PASSWORD=rootpassword
-      - DB_NAME=tekser_db
+      - DB_NAME=perpustakaan
     depends_on:
       db:
         condition: service_healthy
     networks:
       - tekser_network
     restart: unless-stopped
-    volumes:
-      - ./app:/app/app:ro
-      - app_logs:/app/logs
 
-  # Database Service (MySQL)
   db:
     image: mysql:8.0
     container_name: tekser_db
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=tekser_db
-      - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=apppassword
+      - MYSQL_DATABASE=perpustakaan
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./database:/docker-entrypoint-initdb.d:ro
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - tekser_network
     restart: unless-stopped
@@ -49,12 +40,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Nginx Reverse Proxy (Required for scoring)
   nginx:
     image: nginx:alpine
     container_name: tekser_nginx
     ports:
-      - "2562:2562"  # Access via Port 2562 as per requirements
+      - "2562:2562"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -69,6 +59,4 @@ networks:
 
 volumes:
   db_data:
-    driver: local
-  app_logs:
     driver: local
