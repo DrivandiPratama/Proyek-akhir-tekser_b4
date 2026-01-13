@@ -6,13 +6,12 @@ services:
     container_name: tekser_app
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=rootpassword
-      - DB_NAME=perpustakaan
     depends_on:
       db:
         condition: service_healthy
@@ -23,11 +22,11 @@ services:
   db:
     image: mysql:8.0
     container_name: tekser_db
+    env_file:
+      - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=perpustakaan
-    ports:
-      - "3306:3306"
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - db_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro

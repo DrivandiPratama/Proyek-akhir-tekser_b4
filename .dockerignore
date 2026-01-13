@@ -1,0 +1,22 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Editor/OS
+.DS_Store
+.vscode
+.idea
+
+# Logs
+logs
+*.log
